@@ -33,6 +33,6 @@ public class TelegramCommandDispatcher {
     }
 
     public boolean isCommand(Update update) {
-        return update.getMessage().getText().startsWith("/");
+        return update.getMessage().hasText() && update.getMessage().getText().startsWith("/");
     }
 }

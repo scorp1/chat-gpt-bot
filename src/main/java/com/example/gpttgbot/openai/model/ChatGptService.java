@@ -20,13 +20,18 @@ public class ChatGptService {
     @NonNull
     public String getResponseChatForUser(Long userId, String userTextInput) {
         GptModels gptModel = getGptModel();
-        var userHistory = chatGptHistory.getHistoryAndCreate(
+         var userHistory = chatGptHistory.getHistoryAndCreate(
                 userId,
                 Message.builder()
                         .content(userTextInput)
                         .role("user")
                         .build()
         );
+        List<Message> messages = userHistory.chatMessages();
+        messages.add(Message.builder()
+                .content("You are a helpful assistant. Please answer in Russian")
+                .role("system")
+                .build());
         var request = ChatCompletionRequest.builder()
                 .model(gptModel.getDescription())
                 .messages(userHistory.chatMessages())
@@ -38,7 +43,7 @@ public class ChatGptService {
 
     private GptModels getGptModel() {
         if (gptModelsList.isEmpty()) {
-           gptModelsList.add(GptModels.GPT_3_5_TURBO);
+           gptModelsList.add(GptModels.GPT_4o);
         }
         return gptModelsList.get(0);
     }

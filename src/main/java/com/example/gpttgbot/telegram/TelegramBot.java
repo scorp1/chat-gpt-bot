@@ -1,11 +1,13 @@
-package com.example.gpttgbot;
+package com.example.gpttgbot.telegram;
 
 import com.example.gpttgbot.commands.TelegramCommandDispatcher;
 import com.example.gpttgbot.openai.OpenAiClient;
+import com.example.gpttgbot.openai.TranscribeVoiceService;
 import com.example.gpttgbot.openai.model.ChatGptService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -13,21 +15,29 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.util.List;
 
 @Slf4j
+@Component
 public class TelegramBot  extends TelegramLongPollingBot {
 
     private final ChatGptService chatGptService;
     private final TelegramCommandDispatcher telegramCommandDispatcher;
+    private final TelegramFileService telegramFileService;
 
-    public TelegramBot(DefaultBotOptions options,
-                       String botToken,
+    private final TranscribeVoiceService transcribeVoiceService;
+
+    public TelegramBot(@Value("${bot.token}")String botToken,
                        ChatGptService chatGptService,
-                       TelegramCommandDispatcher telegramCommandDispatcher) {
-        super(options, botToken);
+                       TelegramCommandDispatcher telegramCommandDispatcher,
+                       TelegramFileService telegramFileService,
+                       TranscribeVoiceService transcribeVoiceService) {
+        super(new DefaultBotOptions(), botToken);
         this.chatGptService = chatGptService;
         this.telegramCommandDispatcher = telegramCommandDispatcher;
+        this.telegramFileService = telegramFileService;
+        this.transcribeVoiceService = transcribeVoiceService;
     }
     @Override
     public void onUpdateReceived(Update update) {
@@ -53,13 +63,22 @@ public class TelegramBot  extends TelegramLongPollingBot {
             return List.of(telegramCommandDispatcher.processCommand(update));
         }
         if (update.hasMessage() && update.getMessage().hasText()) {
-            var text = update.getMessage().getText();
-            var chatId = update.getMessage().getChatId();
-            var gptGeneratedText = chatGptService.getResponseChatForUser(chatId, text);
-            SendMessage sendMessage = new SendMessage(chatId.toString(), gptGeneratedText);
-            return List.of(sendMessage);
+
+            return List.of(getMessageResponseFromGpt(update.getMessage().getChatId(), update.getMessage().getText()));
+        }
+        if (update.hasMessage() && update.getMessage().hasVoice()) {
+            File file = telegramFileService.getFile(update.getMessage().getVoice().getFileId());
+
+            return List.of(getMessageResponseFromGpt(
+                    update.getMessage().getChatId(),
+                    transcribeVoiceService.transcribe(file)));
         }
         return List.of();
+    }
+
+    public SendMessage getMessageResponseFromGpt(Long chatId, String text) {
+        var gptGeneratedText = chatGptService.getResponseChatForUser(chatId, text);
+        return new SendMessage(chatId.toString(), gptGeneratedText);
     }
 
     @SneakyThrows
