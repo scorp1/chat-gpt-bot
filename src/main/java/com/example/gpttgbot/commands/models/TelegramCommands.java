@@ -4,6 +4,7 @@ public enum TelegramCommands {
     START("/start"),
     CLEAR("/clear"),
     GPT_4_SET("/gpt4"),
+    GPT_4o_SET("/gpt4o"),
     GPT_3_SET("/gpt3.5");
 
 

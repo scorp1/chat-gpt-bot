@@ -15,7 +15,6 @@ public class TranscribeVoiceService {
         var response = openAiClient.createTranslation(CreateTranslationRequest.builder()
                         .audioFile(audioFile)
                         .model("whisper-1")
-                        .language("ru")
                 .build());
         return response.text();
     }

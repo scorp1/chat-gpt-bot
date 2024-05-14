@@ -55,4 +55,20 @@ public class ChatGptService {
         }
         gptModelsList.add(GptModels.GPT_4);
     }
+
+    public void setChatGpt4oModel() {
+        if (!gptModelsList.isEmpty()) {
+            gptModelsList.remove(0);
+
+        }
+        gptModelsList.add(GptModels.GPT_4o);
+    }
+
+    public void setChatGpt3Model() {
+        if (!gptModelsList.isEmpty()) {
+            gptModelsList.remove(0);
+
+        }
+        gptModelsList.add(GptModels.GPT_3_5_TURBO);
+    }
 }

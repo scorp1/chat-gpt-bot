@@ -7,7 +7,6 @@ import java.io.File;
 @Builder
 public record CreateTranslationRequest(
         File audioFile,
-        String model,
-        String language
+        String model
 ) {
 }
