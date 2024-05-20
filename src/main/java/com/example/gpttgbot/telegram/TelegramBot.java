@@ -77,6 +77,7 @@ public class TelegramBot  extends TelegramLongPollingBot {
     }
 
     public SendMessage getMessageResponseFromGpt(Long chatId, String text) {
+        log.info("Send message from telegram user: " + text);
         var gptGeneratedText = chatGptService.getResponseChatForUser(chatId, text);
         return new SendMessage(chatId.toString(), gptGeneratedText);
     }
