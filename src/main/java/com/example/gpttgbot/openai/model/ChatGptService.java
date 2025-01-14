@@ -29,7 +29,9 @@ public class ChatGptService {
         );
         List<Message> messages = userHistory.chatMessages();
         messages.add(Message.builder()
-                .content("You are a helpful assistant. Please answer in Russian")
+                .content("You are a helpful assistant. Please answer in Russian, " +
+                        "I will give you a list of ingredients, creams or other cosmetics, " +
+                        "and you will write down each component and the recommended components that are harmful to health")
                 .role("system")
                 .build());
         var request = ChatCompletionRequest.builder()
