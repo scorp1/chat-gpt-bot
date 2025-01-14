@@ -29,6 +29,11 @@ public class ChatGptHistory {
     }
 
     public ChatHistoryRecord getHistoryAndCreate(Long userId, Message message) {
+        if (!isNeedHistory) {
+            ChatHistoryRecord chatHistory = new ChatHistoryRecord(new ArrayList<>());
+            chatHistory.chatMessages().add(message);
+            return chatHistory;
+        }
         if (getUserHistory(userId).isEmpty()) {
             createHistory(userId);
         }

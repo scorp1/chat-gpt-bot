@@ -76,9 +76,7 @@ public class ChatGptService {
     }
 
     public void setCustomPromt(String promt) {
-        customPromt = "You are a helpful assistant. Please answer in Russian, " +
-                "I will give you a list of ingredients, creams or other cosmetics, " +
-                "and you will write down each component and the recommended components that are harmful to health";
+        customPromt = promt;
     }
 
     public void cleanPromt() {
