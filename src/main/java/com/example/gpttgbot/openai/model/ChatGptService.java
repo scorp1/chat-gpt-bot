@@ -4,34 +4,35 @@ import com.example.gpttgbot.openai.ChatGptHistory;
 import com.example.gpttgbot.openai.OpenAiClient;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChatGptService {
     private final OpenAiClient openAiClient;
     private final ChatGptHistory chatGptHistory;
 
     private final List<GptModels> gptModelsList = new ArrayList<>();
+    private String customPromt = "";
 
     @NonNull
     public String getResponseChatForUser(Long userId, String userTextInput) {
         GptModels gptModel = getGptModel();
-         var userHistory = chatGptHistory.getHistoryAndCreate(
+        var userHistory = chatGptHistory.getHistoryAndCreate(
                 userId,
                 Message.builder()
                         .content(userTextInput)
                         .role("user")
                         .build()
         );
+        String promt = customPromt.equals("") ? "You are a helpful assistant. Please answer in Russian" : customPromt;
         List<Message> messages = userHistory.chatMessages();
         messages.add(Message.builder()
-                .content("You are a helpful assistant. Please answer in Russian, " +
-                        "I will give you a list of ingredients, creams or other cosmetics, " +
-                        "and you will write down each component and the recommended components that are harmful to health")
+                .content(promt)
                 .role("system")
                 .build());
         var request = ChatCompletionRequest.builder()
@@ -72,5 +73,15 @@ public class ChatGptService {
 
         }
         gptModelsList.add(GptModels.GPT_3_5_TURBO);
+    }
+
+    public void setCustomPromt(String promt) {
+        customPromt = "You are a helpful assistant. Please answer in Russian, " +
+                "I will give you a list of ingredients, creams or other cosmetics, " +
+                "and you will write down each component and the recommended components that are harmful to health";
+    }
+
+    public void cleanPromt() {
+        customPromt = "";
     }
 }

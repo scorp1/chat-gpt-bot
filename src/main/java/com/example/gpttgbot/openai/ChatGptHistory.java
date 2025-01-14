@@ -3,15 +3,17 @@ package com.example.gpttgbot.openai;
 import com.example.gpttgbot.openai.model.ChatHistoryRecord;
 import com.example.gpttgbot.openai.model.Message;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChatGptHistory {
     private final Map<Long, ChatHistoryRecord> chatHistoryMap = new ConcurrentHashMap<>();
+    private Boolean isNeedHistory = true;
 
     public Optional<ChatHistoryRecord> getUserHistory(Long userId) {
         return Optional.ofNullable(chatHistoryMap.get(userId));
@@ -37,5 +39,13 @@ public class ChatGptHistory {
 
     public void clearHistory(Long userId) {
         chatHistoryMap.remove(userId);
+    }
+
+    public void setNotHistory() {
+        isNeedHistory = false;
+    }
+
+    public void setNeedHistory() {
+        isNeedHistory = true;
     }
 }
